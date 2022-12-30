@@ -6,7 +6,11 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { api } from '../../lib/axios'
 import { Container, Form, FormError, Header } from './styles'
+import { AxiosError } from 'axios'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const registerFormSchema = z.object({
   username: z
@@ -46,9 +50,17 @@ export default function Register() {
 
   async function handleRegister(data: RegisterFormData) {
     try {
-      await api.post()
-    } catch (err) {
-      console.log(err)
+      await api.post('/users', {
+        name: data.name,
+        username: data.username,
+      })
+      await router.push('/register/connect-calendar')
+    } catch (error) {
+      if (error instanceof AxiosError && error?.response?.data?.message) {
+        toast.error(error.response.data.message, {
+          position: toast.POSITION.TOP_RIGHT,
+        })
+      }
     }
   }
 
